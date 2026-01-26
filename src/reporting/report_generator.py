@@ -51,10 +51,11 @@ graph TD
             
             # Technical Findings
             f.write("## 3. Technical Findings & Risk Analysis\n")
-            f.write("| User Identity | Password Found | Entropy (Bits) | Est. Crack Time (GPU) | Risk Level |\n")
-            f.write("|---|---|---|---|---|\n")
+            f.write("| User Identity | Password Found | Entropy | Algo | Policy | Est. Time | Risk |\n")
+            f.write("|---|---|---|---|---|---|---|\n")
             
-            from src.analytics.metrics import calculate_entropy, estimate_crack_time, evaluate_strength
+            from src.analytics.metrics import calculate_entropy, estimate_crack_time, evaluate_strength, check_policy_compliance
+            from src.utils.hash_identifier import identify_hash_type
             
             weak_count = 0
             for res in results:
@@ -63,10 +64,17 @@ graph TD
                 strength = evaluate_strength(ent)
                 time_est = estimate_crack_time(ent)
                 
+                # Algo Identity
+                algo = "SHA-512" if "Linux" in res['type'] else "NTLM"
+                
+                # Policy Check
+                policy = check_policy_compliance(pw)
+                policy_str = "PASS" if policy == ["PASS"] else "FAIL"
+                
                 if strength in ["Weak", "Very Weak"]:
                     weak_count += 1
                 
-                f.write(f"| {res['user']} | `{pw}` | {ent} | {time_est} | **{strength}** |\n")
+                f.write(f"| {res['user']} | `{pw}` | {ent} | {algo} | {policy_str} | {time_est} | **{strength}** |\n")
             
             f.write("\n")
             

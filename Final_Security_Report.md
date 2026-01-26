@@ -1,5 +1,5 @@
 # Internal Security Audit Simulation Report
-**Date**: 2026-01-26 10:51:30
+**Date**: 2026-01-26 10:53:28
 **Scope**: Synthetic Credential Resilience Benchmark
 
 ## 1. Executive Summary
@@ -19,14 +19,14 @@ graph TD
 ```
 
 ## 3. Technical Findings & Risk Analysis
-| User Identity | Password Found | Entropy (Bits) | Est. Crack Time (GPU) | Risk Level |
-|---|---|---|---|---|
-| mock_user_1000 | `summer2025` | 51.7 | 4.23 days | **Moderate** |
-| mock_user_1001 | `admin` | 23.5 | 0.0012 seconds | **Very Weak** |
-| mock_user_1002 | `secure` | 28.2 | 0.0308 seconds | **Weak** |
-| MockUser_1000 | `summer2025` | 51.7 | 4.23 days | **Moderate** |
-| MockUser_1001 | `admin` | 23.5 | 0.0012 seconds | **Very Weak** |
-| MockUser_1002 | `secure` | 28.2 | 0.0308 seconds | **Weak** |
+| User Identity | Password Found | Entropy | Algo | Policy | Est. Time | Risk |
+|---|---|---|---|---|---|---|
+| mock_user_1000 | `summer2025` | 51.7 | SHA-512 | FAIL | 4.23 days | **Moderate** |
+| mock_user_1001 | `admin` | 23.5 | SHA-512 | FAIL | 0.0012 seconds | **Very Weak** |
+| mock_user_1002 | `secure` | 28.2 | SHA-512 | FAIL | 0.0308 seconds | **Weak** |
+| MockUser_1000 | `summer2025` | 51.7 | NTLM | FAIL | 4.23 days | **Moderate** |
+| MockUser_1001 | `admin` | 23.5 | NTLM | FAIL | 0.0012 seconds | **Very Weak** |
+| MockUser_1002 | `secure` | 28.2 | NTLM | FAIL | 0.0308 seconds | **Weak** |
 
 ## 4. Blue Team Defense Recommendations
 **Critical Issue**: 4 identities used passwords classified as 'Weak' or 'Very Weak'.
