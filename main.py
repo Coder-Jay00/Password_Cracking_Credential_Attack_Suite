@@ -28,19 +28,28 @@ def main():
     engine = BruteForceSimulator()
     results = engine.run_benchmark(all_targets, full_wordlist)
     
-    # 4. Summary & Analytics
     print(f"\n=== SIMULATION RESULTS & ANALYTICS ===")
-    from src.analytics.metrics import calculate_entropy, estimate_crack_time, evaluate_strength
+    from src.analytics.metrics import calculate_entropy, estimate_crack_time, evaluate_strength, check_policy_compliance
+    from src.utils.hash_identifier import identify_hash_type
     
-    print(f"{'User':<15} | {'Password':<15} | {'Entropy':<8} | {'Strength':<10} | {'Est. Time (10GH/s)'}")
-    print("-" * 85)
+    print(f"{'User':<15} | {'Password':<15} | {'Entropy':<6} | {'Algo':<12} | {'Policy':<15} | {'Est. Time'}")
+    print("-" * 100)
     
     for res in results:
         pw = res['password']
         ent = calculate_entropy(pw)
-        strength = evaluate_strength(ent)
         time_est = estimate_crack_time(ent)
-        print(f"{res['user']:<15} | {pw:<15} | {ent:<8} | {strength:<10} | {time_est}")
+        
+        # New Features
+        algo = identify_hash_type(res['type'] == "Linux (SHA-512 Mock)" and "$6$" or "NTLM") 
+        # (Simplified logic for the display, assuming the simulation return type maps)
+        if "Linux" in res['type']: algo = "SHA-512"
+        elif "Windows" in res['type']: algo = "NTLM"
+        
+        policy = check_policy_compliance(pw)
+        policy_str = "PASS" if policy == ["PASS"] else "FAIL"
+        
+        print(f"{res['user']:<15} | {pw:<15} | {ent:<6} | {algo:<12} | {policy_str:<15} | {time_est}")
 
     print(f"\nTotal Success Rate: {len(results)}/{len(all_targets)}")
     

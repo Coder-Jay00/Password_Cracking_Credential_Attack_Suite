@@ -51,6 +51,22 @@ def estimate_crack_time(entropy, hashrate=10_000_000_000):
         years = seconds / 31536000
         return f"{years:.2f} years"
 
+def check_policy_compliance(password):
+    """
+    Checks if password meets standard corporate policy.
+    Scope 4.D: Check complexity requirements.
+    Rules: Length >= 8, mixed case, digits.
+    """
+    failures = []
+    if len(password) < 8:
+        failures.append("Too Short (<8)")
+    if password.islower() or password.isupper():
+        failures.append("No Mixed Case")
+    if not any(c.isdigit() for c in password):
+        failures.append("No Digits")
+        
+    return failures if failures else ["PASS"]
+
 def evaluate_strength(entropy):
     """
     Classifies password strength based on entropy bits (NIST/Industry rules of thumb).

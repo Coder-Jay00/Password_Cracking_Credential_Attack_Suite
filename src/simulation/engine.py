@@ -84,6 +84,61 @@ class BruteForceSimulator:
                 
         return None
 
+    def crack_incremental(self, target_entry, max_length=4):
+        """
+        Simulates an INCREMENTAL brute-force attack (a-z, 0-9).
+        Scope 4.C: Support incremental mode.
+        WARNING: Restrained to max_length=4 for demonstration safety and speed.
+        """
+        import itertools
+        import string
+        
+        chars = string.ascii_lowercase + string.digits # 'a-z0-9'
+        attempts = 0
+        
+        # Determine target hash (simplified wrapper)
+        target_hash = ""
+        is_linux = False
+        salt = ""
+        
+        if "$6$" in target_entry:
+            parts = target_entry.split(':')
+            if len(parts) > 1:
+                _, _, salt, target_hash = parts[1].split('$')[:4]
+                is_linux = True
+        elif ":" in target_entry:
+             target_hash = target_entry.split(':')[3]
+        
+        print(f"       [Incremental] Scanning 1-{max_length} chars for {target_entry[:15]}...")
+        start_time = time.time()
+        
+        for length in range(1, max_length + 1):
+            for guess_tuple in itertools.product(chars, repeat=length):
+                attempts += 1
+                guess = "".join(guess_tuple)
+                
+                # Check
+                if is_linux:
+                    h = self._simulate_linux_hash(guess, salt)
+                else:
+                    h = self._simulate_ntlm_hash(guess)
+                    
+                if h == target_hash:
+                    elapsed = time.time() - start_time
+                    return {
+                        "user": "Unknown",
+                        "password": guess,
+                        "attempts": attempts,
+                        "time_taken": elapsed,
+                        "type": "Incremental Force"
+                    }
+                    
+                # Timeout safety (stop after 2 seconds for demo)
+                if time.time() - start_time > 2.0:
+                    return {"password": None, "attempts": attempts, "time_taken": 2.0, "type": "TIMEOUT"}
+                    
+        return None
+
     def run_benchmark(self, mock_data, wordlist):
         """
         Runs the full simulation against a list of mock entries.
